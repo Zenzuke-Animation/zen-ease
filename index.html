@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Zen Ease</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/CSInterface.js"></script>
+</head>
+<body>
+    <div id="app">
+        <canvas id="curveCanvas" width="280" height="280"></canvas>
+        <div class="controls">
+            <div class="info-row">
+                <input type="text" id="bezierInput" value="0.25, 0.10, 0.25, 1.00">
+                <button id="btnFlipCurve" title="Flip Curve">⇄</button>
+            </div>
+            <div class="button-row">
+                <button id="btnGet">Get from AE</button>
+                <button id="btnApply">Apply to AE</button>
+            </div>
+            <div class="preset-row">
+                <select id="presetSelect">
+                    <option value="">Select preset...</option>
+                </select>
+                <button id="btnSavePreset" title="Save Preset">+</button>
+                <button id="btnDeletePreset" title="Delete Preset">-</button>
+            </div>
+            <div class="button-row">
+                <button id="btnImportPresets">Import Presets</button>
+                <button id="btnExportPresets">Export Presets</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="promptModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <p>Enter a name for this preset:</p>
+            <input type="text" id="presetNameInput">
+            <div class="modal-buttons">
+                <button id="btnModalCancel">Cancel</button>
+                <button id="btnModalOk">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <p id="confirmMessage">Are you sure?</p>
+            <div class="modal-buttons">
+                <button id="btnConfirmCancel">No</button>
+                <button id="btnConfirmOk">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
