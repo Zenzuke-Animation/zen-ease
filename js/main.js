@@ -3,7 +3,61 @@ const canvas = document.getElementById('curveCanvas');
 const ctx = canvas.getContext('2d');
 const bezierInput = document.getElementById('bezierInput');
 const btnFlipCurve = document.getElementById('btnFlipCurve');
-const presetSelect = document.getElementById('presetSelect');
+// Custom Dropdown emulation for presetSelect
+const customSelectContainer = document.getElementById('presetSelectContainer');
+const customSelectTrigger = document.getElementById('presetSelectTrigger');
+const presetSelectValue = document.getElementById('presetSelectValue');
+const customOptions = document.getElementById('customOptions');
+
+const presetSelect = {
+    _value: "",
+    _changeListeners: [],
+    
+    get value() {
+        return this._value;
+    },
+    
+    set value(val) {
+        this._value = val;
+        
+        // Update UI trigger text
+        if (val === "" || !presets[val]) {
+            presetSelectValue.textContent = "Select preset...";
+        } else {
+            presetSelectValue.textContent = val;
+        }
+        
+        // Highlight active option in list
+        const optionsList = customOptions.querySelectorAll('.custom-option');
+        optionsList.forEach(opt => {
+            if (opt.getAttribute('data-value') === val) {
+                opt.classList.add('selected');
+            } else {
+                opt.classList.remove('selected');
+            }
+        });
+        
+        // Trigger listeners
+        this._changeListeners.forEach(listener => listener());
+    },
+    
+    addEventListener(event, listener) {
+        if (event === 'change') {
+            this._changeListeners.push(listener);
+        }
+    }
+};
+
+// Event listener to open/close dropdown
+customSelectTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    customSelectContainer.classList.toggle('open');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', () => {
+    customSelectContainer.classList.remove('open');
+});
 const btnSavePreset = document.getElementById('btnSavePreset');
 const btnDeletePreset = document.getElementById('btnDeletePreset');
 const btnImportPresets = document.getElementById('btnImportPresets');
@@ -86,12 +140,38 @@ const defaultPresets = {
 let presets = JSON.parse(localStorage.getItem('easey_presets_v4')) || defaultPresets;
 
 function updatePresetList() {
-    presetSelect.innerHTML = '<option value="">Select preset...</option>';
+    customOptions.innerHTML = '';
+    
+    // Add default option (Select preset...)
+    const defaultOpt = document.createElement('div');
+    defaultOpt.className = 'custom-option';
+    defaultOpt.setAttribute('data-value', '');
+    defaultOpt.textContent = 'Select preset...';
+    defaultOpt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        presetSelect.value = '';
+        customSelectContainer.classList.remove('open');
+    });
+    customOptions.appendChild(defaultOpt);
+    
     for (let name in presets) {
-        let opt = document.createElement('option');
-        opt.value = name;
+        let opt = document.createElement('div');
+        opt.className = 'custom-option';
+        opt.setAttribute('data-value', name);
         opt.textContent = name;
-        presetSelect.appendChild(opt);
+        
+        // Add active class if selected
+        if (name === presetSelect.value) {
+            opt.classList.add('selected');
+        }
+        
+        opt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            presetSelect.value = name;
+            customSelectContainer.classList.remove('open');
+        });
+        
+        customOptions.appendChild(opt);
     }
 }
 updatePresetList();
@@ -357,7 +437,8 @@ window.addEventListener('keydown', (e) => {
 
 btnExportPresets.addEventListener('click', () => {
     if (!window.cep || !window.cep.fs) return showAlert("CEP filesystem not available.");
-    const result = window.cep.fs.showSaveDialogEx("Export Presets", "", ["txt"], "easey_presets.txt");
+    const initialPath = csInterface.getSystemPath(SystemPath.MY_DOCUMENTS);
+    const result = window.cep.fs.showSaveDialogEx("Export Presets", initialPath, ["txt"], "easey_presets.txt");
     if (result.data) {
         const fileData = JSON.stringify(presets, null, 2);
         window.cep.fs.writeFile(result.data, fileData);
@@ -367,7 +448,8 @@ btnExportPresets.addEventListener('click', () => {
 
 btnImportPresets.addEventListener('click', () => {
     if (!window.cep || !window.cep.fs) return showAlert("CEP filesystem not available.");
-    const result = window.cep.fs.showOpenDialogEx(false, false, "Import Presets", "", ["txt"]);
+    const initialPath = csInterface.getSystemPath(SystemPath.MY_DOCUMENTS);
+    const result = window.cep.fs.showOpenDialogEx(false, false, "Import Presets", initialPath, ["txt"]);
     if (result.data && result.data.length > 0) {
         const fileContent = window.cep.fs.readFile(result.data[0]);
         if (fileContent.err === window.cep.fs.NO_ERROR) {

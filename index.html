@@ -19,9 +19,13 @@
                 <button id="btnApply">Apply to AE</button>
             </div>
             <div class="preset-row">
-                <select id="presetSelect">
-                    <option value="">Select preset...</option>
-                </select>
+                <div class="custom-select" id="presetSelectContainer">
+                    <div class="custom-select-trigger" id="presetSelectTrigger">
+                        <span id="presetSelectValue">Select preset...</span>
+                        <div class="arrow"></div>
+                    </div>
+                    <div class="custom-options" id="customOptions"></div>
+                </div>
                 <button id="btnSavePreset" title="Save Preset">+</button>
                 <button id="btnDeletePreset" title="Delete Preset">-</button>
             </div>
