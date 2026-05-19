@@ -7,15 +7,17 @@ body, html {
     user-select: none;
     overflow: hidden;
     height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 #app {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
     padding: 10px;
     box-sizing: border-box;
-    height: 100%;
+    overflow: hidden;
 }
 
 canvas {
@@ -58,6 +60,62 @@ canvas {
     border-color: #00a8ff;
 }
 
+/* Tab Navigation and Layout */
+.tab-navigation {
+    display: flex;
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #333;
+    height: 36px;
+    flex-shrink: 0;
+}
+
+.tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #999;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+}
+
+.tab-btn:hover {
+    color: #ccc;
+    background-color: #242424;
+}
+
+.tab-btn.active {
+    color: #00a8ff;
+    border-bottom: 2px solid #00a8ff;
+    background-color: #232323;
+}
+
+.tab-content {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+#editorView {
+    align-items: center;
+    gap: 10px;
+}
+
+/* Preset Row & Library Trigger */
 .preset-row {
     display: flex;
     justify-content: space-between;
@@ -65,121 +123,190 @@ canvas {
     width: 100%;
 }
 
-/* Custom Select Dropdown */
-.custom-select {
-    position: relative;
-    flex: 1;
-    font-size: 13px;
-    user-select: none;
-}
-
-.custom-select-trigger {
+.library-trigger {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: #383838;
     color: #e0e0e0;
     border: 1px solid #4a4a4a;
-    padding: 6px 10px;
+    padding: 6px 12px;
     border-radius: 3px;
     cursor: pointer;
     transition: all 0.15s ease;
     height: 100%;
     box-sizing: border-box;
+    flex: 1;
+    font-size: 13px;
+    text-align: left;
 }
 
-.custom-select-trigger:hover {
+.library-trigger:hover {
     background-color: #444;
     border-color: #5a5a5a;
 }
 
-.custom-select.open .custom-select-trigger {
-    border-color: #00a8ff;
-    box-shadow: 0 0 4px rgba(0, 168, 255, 0.4);
-    background-color: #3d3d3d;
+.library-trigger:active {
+    background-color: #2a2a2a;
 }
 
-.custom-select-trigger .arrow {
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #e0e0e0;
-    transition: transform 0.15s ease;
-    margin-left: 8px;
-}
-
-.custom-select.open .arrow {
-    transform: rotate(180deg);
-}
-
-.custom-options {
-    position: absolute;
-    display: block;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
-    background-color: #2b2b2b;
-    border: 1px solid #4a4a4a;
-    border-radius: 4px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    z-index: 99;
-    max-height: 200px;
-    overflow-y: auto;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-5px);
-    transition: all 0.15s ease;
-}
-
-.custom-select.open .custom-options {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.custom-option {
-    padding: 6px 10px;
-    cursor: pointer;
-    transition: all 0.1s ease;
-    color: #e0e0e0;
-    text-align: left;
-}
-
-.custom-option:hover {
-    background-color: #00a8ff;
-    color: #ffffff;
-}
-
-.custom-option.selected {
-    background-color: #3d3d3d;
+.library-trigger .lib-icon {
+    font-size: 14px;
     color: #00a8ff;
 }
 
-.custom-option.selected:hover {
-    background-color: #00a8ff;
-    color: #ffffff;
+/* Library View Styles */
+.library-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    flex-shrink: 0;
 }
 
-/* Custom scrollbar for options dropdown */
-.custom-options::-webkit-scrollbar {
+.presets-list-container {
+    flex: 1;
+    overflow-y: auto;
+    width: 100%;
+    margin-top: 10px;
+    padding-right: 2px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Custom scrollbar for presets list */
+.presets-list-container::-webkit-scrollbar {
     width: 6px;
 }
 
-.custom-options::-webkit-scrollbar-track {
+.presets-list-container::-webkit-scrollbar-track {
     background: #232323;
 }
 
-.custom-options::-webkit-scrollbar-thumb {
+.presets-list-container::-webkit-scrollbar-thumb {
     background: #444;
     border-radius: 3px;
 }
 
-.custom-options::-webkit-scrollbar-thumb:hover {
+.presets-list-container::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
-#btnSavePreset, #btnDeletePreset, #btnFlipCurve {
+/* Preset Cards */
+.preset-card {
+    display: flex;
+    align-items: center;
+    background-color: #2b2b2b;
+    border: 1px solid #4a4a4a;
+    border-radius: 5px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.preset-card:hover {
+    background-color: #383838;
+    border-color: #5a5a5a;
+}
+
+.preset-card.selected {
+    background-color: #2e353f;
+    border-color: #00a8ff;
+    box-shadow: 0 0 6px rgba(0, 168, 255, 0.2);
+}
+
+.preset-card-left {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #1e1e1e;
+    border: 1px solid #3d3d3d;
+    border-radius: 4px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.preset-preview-svg {
+    width: 40px;
+    height: 40px;
+    display: block;
+}
+
+.preset-card-middle {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.preset-card-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preset-card-values {
+    font-size: 11px;
+    font-family: monospace;
+    color: #888;
+}
+
+.preset-card-right {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+
+.preset-card-right button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #383838;
+    color: #e0e0e0;
+    border: 1px solid #4a4a4a;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s ease;
+    flex: none;
+}
+
+.preset-card-right button:hover {
+    background-color: #444;
+}
+
+.preset-card-right .btn-card-apply {
+    color: #ffaa00;
+}
+
+.preset-card-right .btn-card-apply:hover {
+    background-color: #ffaa00;
+    border-color: #ffaa00;
+    color: #1e1e1e;
+    font-weight: bold;
+}
+
+.preset-card-right .btn-card-delete:hover {
+    background-color: #ff3b30;
+    border-color: #ff3b30;
+    color: #fff;
+}
+
+#btnSavePreset, #btnFlipCurve {
     flex: 0 0 30px;
     font-size: 16px;
     font-weight: bold;
@@ -210,6 +337,24 @@ button:hover {
 
 button:active {
     background-color: #2a2a2a;
+}
+
+#btnApply {
+    background-color: #ffaa00;
+    color: #1e1e1e;
+    border: 1px solid #e69900;
+    font-weight: bold;
+    transition: all 0.15s ease;
+}
+
+#btnApply:hover {
+    background-color: #ffb733;
+    border-color: #ffaa00;
+}
+
+#btnApply:active {
+    background-color: #e69900;
+    border-color: #cc8800;
 }
 
 /* Modal Styles */

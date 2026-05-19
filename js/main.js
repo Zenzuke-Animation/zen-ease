@@ -3,11 +3,33 @@ const canvas = document.getElementById('curveCanvas');
 const ctx = canvas.getContext('2d');
 const bezierInput = document.getElementById('bezierInput');
 const btnFlipCurve = document.getElementById('btnFlipCurve');
-// Custom Dropdown emulation for presetSelect
-const customSelectContainer = document.getElementById('presetSelectContainer');
-const customSelectTrigger = document.getElementById('presetSelectTrigger');
+// Tab Switching and Navigation Elements
+const tabBtnEditor = document.getElementById('tabBtnEditor');
+const tabBtnLibrary = document.getElementById('tabBtnLibrary');
+const editorView = document.getElementById('editorView');
+const libraryView = document.getElementById('libraryView');
+const btnOpenLibrary = document.getElementById('btnOpenLibrary');
+const presetsList = document.getElementById('presetsList');
 const presetSelectValue = document.getElementById('presetSelectValue');
-const customOptions = document.getElementById('customOptions');
+
+function switchTab(tab) {
+    if (tab === 'editor') {
+        tabBtnEditor.classList.add('active');
+        tabBtnLibrary.classList.remove('active');
+        editorView.classList.add('active');
+        libraryView.classList.remove('active');
+        resizeCanvas();
+    } else if (tab === 'library') {
+        tabBtnLibrary.classList.add('active');
+        tabBtnEditor.classList.remove('active');
+        libraryView.classList.add('active');
+        editorView.classList.remove('active');
+    }
+}
+
+tabBtnEditor.addEventListener('click', () => switchTab('editor'));
+tabBtnLibrary.addEventListener('click', () => switchTab('library'));
+btnOpenLibrary.addEventListener('click', () => switchTab('library'));
 
 const presetSelect = {
     _value: "",
@@ -27,13 +49,16 @@ const presetSelect = {
             presetSelectValue.textContent = val;
         }
         
-        // Highlight active option in list
-        const optionsList = customOptions.querySelectorAll('.custom-option');
-        optionsList.forEach(opt => {
-            if (opt.getAttribute('data-value') === val) {
-                opt.classList.add('selected');
+        // Highlight active card in library list
+        const cards = presetsList.querySelectorAll('.preset-card');
+        cards.forEach(card => {
+            const path = card.querySelector('path');
+            if (card.getAttribute('data-name') === val) {
+                card.classList.add('selected');
+                if (path) path.setAttribute('stroke', '#00a8ff');
             } else {
-                opt.classList.remove('selected');
+                card.classList.remove('selected');
+                if (path) path.setAttribute('stroke', '#ffffff');
             }
         });
         
@@ -48,18 +73,7 @@ const presetSelect = {
     }
 };
 
-// Event listener to open/close dropdown
-customSelectTrigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    customSelectContainer.classList.toggle('open');
-});
-
-// Close dropdown when clicking outside
-document.addEventListener('click', () => {
-    customSelectContainer.classList.remove('open');
-});
 const btnSavePreset = document.getElementById('btnSavePreset');
-const btnDeletePreset = document.getElementById('btnDeletePreset');
 const btnImportPresets = document.getElementById('btnImportPresets');
 const btnExportPresets = document.getElementById('btnExportPresets');
 const btnGet = document.getElementById('btnGet');
@@ -139,39 +153,90 @@ const defaultPresets = {
 
 let presets = JSON.parse(localStorage.getItem('easey_presets_v4')) || defaultPresets;
 
+function confirmDeletePreset(name) {
+    if (name && presets[name]) {
+        presetToDelete = name;
+        confirmMessage.innerText = `Are you sure you want to delete preset "${name}"?`;
+        btnConfirmOk.innerText = "Yes";
+        btnConfirmCancel.innerText = "No";
+        btnConfirmCancel.style.display = "inline-block";
+        confirmModal.style.display = 'flex';
+        btnConfirmCancel.focus();
+    }
+}
+
 function updatePresetList() {
-    customOptions.innerHTML = '';
-    
-    // Add default option (Select preset...)
-    const defaultOpt = document.createElement('div');
-    defaultOpt.className = 'custom-option';
-    defaultOpt.setAttribute('data-value', '');
-    defaultOpt.textContent = 'Select preset...';
-    defaultOpt.addEventListener('click', (e) => {
-        e.stopPropagation();
-        presetSelect.value = '';
-        customSelectContainer.classList.remove('open');
-    });
-    customOptions.appendChild(defaultOpt);
+    presetsList.innerHTML = '';
     
     for (let name in presets) {
-        let opt = document.createElement('div');
-        opt.className = 'custom-option';
-        opt.setAttribute('data-value', name);
-        opt.textContent = name;
+        const p = presets[name];
+        const x1 = p[0];
+        const y1 = p[1];
+        const x2 = p[2];
+        const y2 = p[3];
         
-        // Add active class if selected
+        // Calculate preview SVG control points
+        const svgX1 = 5 + x1 * 40;
+        const svgY1 = 45 - y1 * 40;
+        const svgX2 = 5 + x2 * 40;
+        const svgY2 = 45 - y2 * 40;
+        
+        const card = document.createElement('div');
+        card.className = 'preset-card';
+        card.setAttribute('data-name', name);
         if (name === presetSelect.value) {
-            opt.classList.add('selected');
+            card.classList.add('selected');
         }
         
-        opt.addEventListener('click', (e) => {
-            e.stopPropagation();
+        const strokeColor = (name === presetSelect.value) ? '#00a8ff' : '#ffffff';
+        
+        card.innerHTML = `
+            <div class="preset-card-left">
+                <svg class="preset-preview-svg" viewBox="0 0 50 50">
+                    <path d="M 5 45 C ${svgX1} ${svgY1}, ${svgX2} ${svgY2}, 45 5" fill="none" stroke="${strokeColor}" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="preset-card-middle">
+                <div class="preset-card-name">${name}</div>
+                <div class="preset-card-values">${x1.toFixed(2)}, ${y1.toFixed(2)}, ${x2.toFixed(2)}, ${y2.toFixed(2)}</div>
+            </div>
+            <div class="preset-card-right">
+                <button class="btn-card-apply" title="Apply to AE">✓</button>
+                <button class="btn-card-delete" title="Delete Preset">✕</button>
+            </div>
+        `;
+        
+        // Card click: Select and load into editor, then switch to editor tab
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
             presetSelect.value = name;
-            customSelectContainer.classList.remove('open');
+            switchTab('editor');
         });
         
-        customOptions.appendChild(opt);
+        // Quick Apply button
+        const btnCardApply = card.querySelector('.btn-card-apply');
+        btnCardApply.addEventListener('click', (e) => {
+            e.stopPropagation();
+            presetSelect.value = name;
+            
+            const arr = [handles[0].x, handles[0].y, handles[1].x, handles[1].y];
+            csInterface.evalScript(`applyEasing([${arr.join(',')}])`, (res) => {
+                if (res.indexOf("ERROR:") === 0) {
+                    showAlert(res.replace("ERROR: ", ""));
+                } else if (res !== "OK" && res !== "") {
+                    console.error("Error from AE:", res);
+                }
+            });
+        });
+        
+        // Delete button
+        const btnCardDelete = card.querySelector('.btn-card-delete');
+        btnCardDelete.addEventListener('click', (e) => {
+            e.stopPropagation();
+            confirmDeletePreset(name);
+        });
+        
+        presetsList.appendChild(card);
     }
 }
 updatePresetList();
@@ -394,19 +459,6 @@ presetNameInput.addEventListener('keydown', (e) => {
 
 let presetToDelete = null;
 
-btnDeletePreset.addEventListener('click', () => {
-    const name = presetSelect.value;
-    if (name && presets[name]) {
-        presetToDelete = name;
-        confirmMessage.innerText = `Are you sure you want to delete preset "${name}"?`;
-        btnConfirmOk.innerText = "Yes";
-        btnConfirmCancel.innerText = "No";
-        btnConfirmCancel.style.display = "inline-block";
-        confirmModal.style.display = 'flex';
-        btnConfirmCancel.focus();
-    }
-});
-
 btnConfirmCancel.addEventListener('click', () => {
     confirmModal.style.display = 'none';
     presetToDelete = null;
@@ -417,6 +469,9 @@ btnConfirmOk.addEventListener('click', () => {
         delete presets[presetToDelete];
         localStorage.setItem('easey_presets_v4', JSON.stringify(presets));
         updatePresetList();
+        if (presetSelect.value === presetToDelete) {
+            presetSelect.value = "";
+        }
     }
     confirmModal.style.display = 'none';
     presetToDelete = null;
@@ -438,7 +493,7 @@ window.addEventListener('keydown', (e) => {
 btnExportPresets.addEventListener('click', () => {
     if (!window.cep || !window.cep.fs) return showAlert("CEP filesystem not available.");
     const initialPath = csInterface.getSystemPath(SystemPath.MY_DOCUMENTS);
-    const result = window.cep.fs.showSaveDialogEx("Export Presets", initialPath, ["txt"], "easey_presets.txt");
+    const result = window.cep.fs.showSaveDialogEx("Export Presets", initialPath, ["txt"], "zen-ease-presets.txt");
     if (result.data) {
         const fileData = JSON.stringify(presets, null, 2);
         window.cep.fs.writeFile(result.data, fileData);

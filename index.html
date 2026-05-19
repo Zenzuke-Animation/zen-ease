@@ -7,31 +7,42 @@
     <script src="js/CSInterface.js"></script>
 </head>
 <body>
+    <div class="tab-navigation">
+        <button class="tab-btn active" id="tabBtnEditor">Curve Editor</button>
+        <button class="tab-btn" id="tabBtnLibrary">Preset Library</button>
+    </div>
+
     <div id="app">
-        <canvas id="curveCanvas" width="280" height="280"></canvas>
-        <div class="controls">
-            <div class="info-row">
-                <input type="text" id="bezierInput" value="0.25, 0.10, 0.25, 1.00">
-                <button id="btnFlipCurve" title="Flip Curve">⇄</button>
-            </div>
-            <div class="button-row">
-                <button id="btnGet">Get from AE</button>
-                <button id="btnApply">Apply to AE</button>
-            </div>
-            <div class="preset-row">
-                <div class="custom-select" id="presetSelectContainer">
-                    <div class="custom-select-trigger" id="presetSelectTrigger">
-                        <span id="presetSelectValue">Select preset...</span>
-                        <div class="arrow"></div>
-                    </div>
-                    <div class="custom-options" id="customOptions"></div>
+        <!-- Editor View -->
+        <div id="editorView" class="tab-content active">
+            <canvas id="curveCanvas" width="280" height="280"></canvas>
+            <div class="controls">
+                <div class="info-row">
+                    <input type="text" id="bezierInput" value="0.25, 0.10, 0.25, 1.00">
+                    <button id="btnFlipCurve" title="Flip Curve">⇄</button>
                 </div>
-                <button id="btnSavePreset" title="Save Preset">+</button>
-                <button id="btnDeletePreset" title="Delete Preset">-</button>
+                <div class="button-row">
+                    <button id="btnGet">Get from AE</button>
+                    <button id="btnApply">Apply to AE</button>
+                </div>
+                <div class="preset-row">
+                    <button id="btnOpenLibrary" class="library-trigger">
+                        <span id="presetSelectValue">Select preset...</span>
+                        <span class="lib-icon">📚</span>
+                    </button>
+                    <button id="btnSavePreset" title="Save Preset">+</button>
+                </div>
             </div>
-            <div class="button-row">
+        </div>
+
+        <!-- Presets Library View -->
+        <div id="libraryView" class="tab-content">
+            <div class="library-actions">
                 <button id="btnImportPresets">Import Presets</button>
                 <button id="btnExportPresets">Export Presets</button>
+            </div>
+            <div id="presetsList" class="presets-list-container">
+                <!-- Dynamic cards populated by JS -->
             </div>
         </div>
     </div>
