@@ -496,8 +496,12 @@ btnExportPresets.addEventListener('click', () => {
     const result = window.cep.fs.showSaveDialogEx("Export Presets", initialPath, ["txt"], "zen-ease-presets.txt");
     if (result.data) {
         const fileData = JSON.stringify(presets, null, 2);
-        window.cep.fs.writeFile(result.data, fileData);
-        showAlert("Presets exported successfully!");
+        const writeResult = window.cep.fs.writeFile(result.data, fileData);
+        if (writeResult.err === window.cep.fs.NO_ERROR) {
+            showAlert("Presets exported successfully!");
+        } else {
+            showAlert("Failed to export presets: " + writeResult.err);
+        }
     }
 });
 

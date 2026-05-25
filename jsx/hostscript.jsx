@@ -158,8 +158,8 @@ function calculateDV(p, k1, k2) {
     }
     
     if (v1 instanceof Array) {
-        return Math.abs(v2[0] - v1[0]); // Default to first dimension for avg speed reference
+        return v2[0] - v1[0]; // Default to first dimension for avg speed reference (signed)
     }
     
-    return Math.abs(v2 - v1);
+    return v2 - v1; // Signed difference for 1D properties
 }

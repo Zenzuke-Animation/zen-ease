@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="11.0" ExtensionBundleId="com.easey.ae" ExtensionBundleVersion="1.2.2"
+<ExtensionManifest Version="10.0" ExtensionBundleId="com.easey.ae" ExtensionBundleVersion="1.2.2"
   ExtensionBundleName="Zen Ease" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>
     <Extension Id="com.easey.ae.panel" Version="1.2.2" />
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>
-      <Host Name="AEFT" Version="11.0" />
+      <Host Name="AEFT" Version="[14.0,99.0]" />
     </HostList>
     <LocaleList>
       <Locale Code="All" />
     </LocaleList>
     <RequiredRuntimeList>
-      <RequiredRuntime Name="CSXS" Version="11.0" />
+      <RequiredRuntime Name="CSXS" Version="7.0" />
     </RequiredRuntimeList>
   </ExecutionEnvironment>
   <DispatchInfoList>
@@ -21,10 +21,6 @@
         <Resources>
           <MainPath>./index.html</MainPath>
           <ScriptPath>./jsx/hostscript.jsx</ScriptPath>
-          <CEFCommandLine>
-            <Parameter>--enable-nodejs</Parameter>
-            <Parameter>--mixed-context</Parameter>
-          </CEFCommandLine>
         </Resources>
         <Lifecycle>
           <AutoVisible>true</AutoVisible>
