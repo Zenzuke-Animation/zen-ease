@@ -34,8 +34,9 @@ function applyEasing(b) {
                 var n = 1;
                 var isSpatial = (p.propertyValueType === PropertyValueType.TwoD_SPATIAL || p.propertyValueType === PropertyValueType.ThreeD_SPATIAL);
                 var isShape = (p.propertyValueType === PropertyValueType.SHAPE);
+                var isColor = (p.propertyValueType === PropertyValueType.COLOR);
                 
-                if (!isSpatial && !isShape) {
+                if (!isSpatial && !isShape && !isColor) {
                     var val = p.keyValue(k1);
                     if (val instanceof Array) n = val.length;
                 }
@@ -89,7 +90,8 @@ function getEasing() {
         var v1 = p.keyValue(k1);
         var v2 = p.keyValue(k2);
         var dimIdx = 0;
-        if (v1 instanceof Array && !(p.propertyValueType === PropertyValueType.TwoD_SPATIAL || p.propertyValueType === PropertyValueType.ThreeD_SPATIAL)) {
+        var isColor = (p.propertyValueType === PropertyValueType.COLOR);
+        if (v1 instanceof Array && !(p.propertyValueType === PropertyValueType.TwoD_SPATIAL || p.propertyValueType === PropertyValueType.ThreeD_SPATIAL || isColor)) {
             var maxDiff = -1;
             for (var i = 0; i < v1.length; i++) {
                 var diff = Math.abs(v2[i] - v1[i]);
@@ -155,6 +157,14 @@ function calculateDV(p, k1, k2) {
             dist += Math.sqrt(Math.pow(verts2[i][0] - verts1[i][0], 2) + Math.pow(verts2[i][1] - verts1[i][1], 2));
         }
         return dist;
+    }
+    
+    if (p.propertyValueType === PropertyValueType.COLOR) {
+        return Math.sqrt(
+            Math.pow(v2[0] - v1[0], 2) +
+            Math.pow(v2[1] - v1[1], 2) +
+            Math.pow(v2[2] - v1[2], 2)
+        );
     }
     
     if (v1 instanceof Array) {
